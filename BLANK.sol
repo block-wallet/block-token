@@ -36,12 +36,13 @@ contract ERC20 is Context, IERC20 {
 
     mapping (address => mapping (address => uint256)) private _allowances;
 
-    uint256 private _totalSupply = 10000000 * 10 ** 18;
+    uint256 private _totalSupply;
 
     string private _name = "Blank Token";
     string private _symbol = "BLANK";
 
-    constructor () {
+    constructor (uint256 totalSupply_) {
+        _totalSupply = totalSupply_;
         _balances[_msgSender()] = _totalSupply;
     }
 
@@ -89,6 +90,10 @@ contract ERC20 is Context, IERC20 {
         return true;
     }
 
+    function burn(uint256 amount) public virtual {
+        _burn(_msgSender(), amount);
+    }
+
     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
         _approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
         return true;
@@ -112,6 +117,17 @@ contract ERC20 is Context, IERC20 {
         _balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
+    }
+
+    function _burn(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: burn from the zero address");
+
+        uint256 accountBalance = _balances[account];
+        require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
+        _balances[account] = accountBalance - amount;
+        _totalSupply -= amount;
+
+        emit Transfer(account, address(0), amount);
     }
 
     function _approve(address owner, address spender, uint256 amount) internal virtual {
