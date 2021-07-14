@@ -68,6 +68,16 @@ abstract contract Pausable is Ownable {
      function unpause() public virtual onlyOwner {
         _unpause();
     }
+    
+    modifier whenNotPaused() {
+        require(!paused(), "Pausable: paused");
+        _;
+    }
+
+    modifier whenPaused() {
+        require(paused(), "Pausable: not paused");
+        _;
+    }
 
     function _pause() internal virtual whenNotPaused {
         _paused = true;
