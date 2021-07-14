@@ -61,11 +61,11 @@ abstract contract Pausable is Ownable {
         return _paused;
     }
     
-     function pause() public virtual onlyOwner {
+    function pause() public virtual onlyOwner {
         _pause();
     }
     
-     function unpause() public virtual onlyOwner {
+    function unpause() public virtual onlyOwner {
         _unpause();
     }
     
