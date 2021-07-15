@@ -15,7 +15,10 @@ abstract contract Context {
 abstract contract Ownable is Context {
     address private _owner;
 
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     constructor() {
         _setOwner(_msgSender());
@@ -30,12 +33,15 @@ abstract contract Ownable is Context {
         _;
     }
 
-    function renounceOwnership() public virtual onlyOwner {
+    function renounceOwnership() external virtual onlyOwner {
         _setOwner(address(0));
     }
 
-    function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
+    function transferOwnership(address newOwner) external virtual onlyOwner {
+        require(
+            newOwner != address(0),
+            "Ownable: new owner is the zero address"
+        );
         _setOwner(newOwner);
     }
 
@@ -60,15 +66,15 @@ abstract contract Pausable is Ownable {
     function paused() public view virtual returns (bool) {
         return _paused;
     }
-    
-    function pause() public virtual onlyOwner {
+
+    function pause() external virtual onlyOwner {
         _pause();
     }
-    
-    function unpause() public virtual onlyOwner {
+
+    function unpause() external virtual onlyOwner {
         _unpause();
     }
-    
+
     modifier whenNotPaused() {
         require(!paused(), "Pausable: paused");
         _;
@@ -95,25 +101,26 @@ contract ERC20 is Pausable {
 
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    uint256 private _totalSupply = 125000000 ether;
+    uint256 private _totalSupply = 125e6 ether;
 
-    string private _name = "GoBlank Token";
-    string private _symbol = "BLANK";
-    
     event Transfer(address indexed from, address indexed to, uint256 value);
 
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 
     constructor() {
         _balances[_msgSender()] = _totalSupply;
     }
 
     function name() public view virtual returns (string memory) {
-        return _name;
+        return "GoBlank Token";
     }
 
     function symbol() public view virtual returns (string memory) {
-        return _symbol;
+        return "BLANK";
     }
 
     function decimals() public view virtual returns (uint8) {
@@ -128,16 +135,29 @@ contract ERC20 is Pausable {
         return _balances[account];
     }
 
-    function transfer(address recipient, uint256 amount) public virtual returns (bool) {
+    function transfer(address recipient, uint256 amount)
+        external
+        virtual
+        returns (bool)
+    {
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
 
-    function allowance(address owner, address spender) public view virtual returns (uint256) {
+    function allowance(address owner, address spender)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
         return _allowances[owner][spender];
     }
 
-    function approve(address spender, uint256 amount) public virtual returns (bool) {
+    function approve(address spender, uint256 amount)
+        external
+        virtual
+        returns (bool)
+    {
         _approve(_msgSender(), spender, amount);
         return true;
     }
@@ -146,11 +166,14 @@ contract ERC20 is Pausable {
         address sender,
         address recipient,
         uint256 amount
-    ) public virtual returns (bool) {
+    ) external virtual returns (bool) {
         _transfer(sender, recipient, amount);
 
         uint256 currentAllowance = _allowances[sender][_msgSender()];
-        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
+        require(
+            currentAllowance >= amount,
+            "ERC20: transfer amount exceeds allowance"
+        );
         unchecked {
             _approve(sender, _msgSender(), currentAllowance - amount);
         }
@@ -158,22 +181,37 @@ contract ERC20 is Pausable {
         return true;
     }
 
-    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
+    function increaseAllowance(address spender, uint256 addedValue)
+        external
+        virtual
+        returns (bool)
+    {
+        _approve(
+            _msgSender(),
+            spender,
+            _allowances[_msgSender()][spender] + addedValue
+        );
         return true;
     }
 
-    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+    function decreaseAllowance(address spender, uint256 subtractedValue)
+        external
+        virtual
+        returns (bool)
+    {
         uint256 currentAllowance = _allowances[_msgSender()][spender];
-        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
+        require(
+            currentAllowance >= subtractedValue,
+            "ERC20: decreased allowance below zero"
+        );
         unchecked {
             _approve(_msgSender(), spender, currentAllowance - subtractedValue);
         }
 
         return true;
     }
-    
-    function burn(uint256 amount) public virtual {
+
+    function burn(uint256 amount) external virtual {
         _burn(_msgSender(), amount);
     }
 
@@ -188,7 +226,10 @@ contract ERC20 is Pausable {
         _beforeTokenTransfer();
 
         uint256 senderBalance = _balances[sender];
-        require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
+        require(
+            senderBalance >= amount,
+            "ERC20: transfer amount exceeds balance"
+        );
         unchecked {
             _balances[sender] = senderBalance - amount;
         }
@@ -225,6 +266,9 @@ contract ERC20 is Pausable {
     }
 
     function _beforeTokenTransfer() internal virtual {
-        require(!paused() || tx.origin == owner(), "ERC20Pausable: token transfer while paused");
+        require(
+            !paused() || tx.origin == owner(),
+            "ERC20Pausable: token transfer while paused"
+        );
     }
 }
